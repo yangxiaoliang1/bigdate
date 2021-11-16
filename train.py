@@ -1,26 +1,31 @@
-from tensorflow import keras
-import matplotlib.pyplot as pit
-import tensorflow as tf
+import os.path
 import numpy as np
+#convert 32*32 to 1*1024
+def img32to1024(filename):
+    returnVect=np.zeros((1,1024))
+    fr=open(filename,'r')
+    for i in range(32):
+        lineStr=fr.readline()
+        for j in range(32):
+            returnVect[0,32*i+j]=int(lineStr[j])
+    return returnVect
 
-fashion_mnist = keras.datasets.fashion_mnist
-(train_images,train_lables),(test_images,test_lables) = fashion_mnist.load_data()
-print(train_images.shape)
-train_images=train_images/255.0
-test_images=test_images/255.0
-def create_model():
-    model = tf.keras.models.Squential([
-        keras.layers.Flatten(input_shape=(28,28)),
-        keras.layers.Dense(128,activation="relu"),
-        keras.layers.Dense(28)
-    ])
-    model.compile(
-        optimizer="adam",
-        loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-        metrics=[tf.metrics.SparseCategoricalAccuracy()]
-    )
-    return model
+#collect train to a matrix and identify class
+hwLabels=[]
+trainingFileList=os.listdir('trainingDigits')
+m=len(trainingFileList)
+trainingMat=np.zeros((m,1024))
+for i in range(m):
+    fileNameStr=trainingFileList[i]
+    fileStr=fileNameStr.split('.')[0]
+    classNumStr=int(fileStr.split('_')[0])
+    hwLabels.append(classNumStr)
+    trainingMat[i,:]=img32to1024('trainingDigits/%s' % fileNameStr)
 
-new_model = create_model()
-new_model.fit(train_images,train_lables,epochs=100)
-new_model.save("model/mymodel3.h5")
+
+
+
+
+
+
+
